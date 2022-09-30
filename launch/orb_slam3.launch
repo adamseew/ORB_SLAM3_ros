@@ -66,7 +66,7 @@
     <!-- <node pkg="hector_trajectory_server" type="hector_trajectory_server" name="trajectory_server_orb_slam3" output="screen" ns="orb_slam3_ros">
         <param name="/target_frame_name" value="/world" />
         <param name="/source_frame_name" value="/$(arg camera_base_frame)" />
-        <param name="/trajectory_update_rate" value="20.0" />
-        <param name="/trajectory_publish_rate" value="20.0" />
+        <param name="/trajectory_update_rate" value="5.0" />
+        <param name="/trajectory_publish_rate" value="5.0" />
     </node> -->
 </launch>

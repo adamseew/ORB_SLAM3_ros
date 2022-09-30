@@ -26,14 +26,14 @@ Camera.k3: -0.019803931936621666
 
 
 # Camera frames per second
-Camera.fps: 30.0
+Camera.fps: 5.0
 
 # Color order of the images (0: BGR, 1: RGB. It is ignored if images are grayscale)
 Camera.RGB: 1
 
 # Camera resolution
-Camera.width: 1280
-Camera.height: 720
+Camera.width: 640
+Camera.height: 480
 
 # IR projector baseline times fx (aprox.)
 Camera.bf: 40.0
