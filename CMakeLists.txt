@@ -1,3 +1,4 @@
+
 cmake_minimum_required(VERSION 2.8)
 project(orb_slam3_ros_wrapper)
 
@@ -19,7 +20,6 @@ find_package (catkin REQUIRED COMPONENTS
    tf
    sensor_msgs
    geometry_msgs
-   message_generation
 )
 
 find_package(OpenCV REQUIRED)
@@ -32,20 +32,9 @@ MESSAGE(${Eigen3_VERSION})
 
 find_package(Pangolin REQUIRED)
 
-add_message_files(
-  FILES
-  frame.msg
-)
-
-generate_messages(
-  DEPENDENCIES
-  sensor_msgs
-  geometry_msgs
-)
-
 catkin_package (
-   CATKIN_DEPENDS roscpp rospy std_msgs cv_bridge image_transport tf sensor_msgs message_runtime
-   LIBRARIES {PROJECT_NAME}
+   CATKIN_DEPENDS roscpp rospy std_msgs cv_bridge image_transport tf sensor_msgs geometry_msgs
+   LIBRARIES ${PROJECT_NAME}
 )
 
 include_directories(

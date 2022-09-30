@@ -1,11 +1,15 @@
 <?xml version="1.0"?>
 <package>
+    <!-- original authors Thien Nguyen, Joe Ortiz, edits Adam Seewald -->
+    <!-- original repo https://github.com/joeaortiz/ORB_SLAM3_ros/tree/113b554cfe93033645484053f5d4f3e4849cb285 -->
     <name>orb_slam3_ros_wrapper</name>
     <version>0.0.1</version>
-    <description>ROS wrapper for ORB SLAM3.</description>
+    <description>ROS wrapper for ORB SLAM3, modified version</description>
 
-    <maintainer email="hoangthiennguyen94@gmail.com">Thien Nguyen</maintainer>
-
+    <maintainer email="adam.seewald@yale.edu">Adam Seewald</maintainer>
+    <author>Adam Seewald</author>
+    <author>Thien Nguyen</author>
+    <author>Joe Ortiz</author>
     <license>GPLv3</license>
 
     <buildtool_depend>catkin</buildtool_depend>
@@ -16,7 +20,7 @@
     <build_depend>image_transport</build_depend>
     <build_depend>tf</build_depend>
     <build_depend>sensor_msgs</build_depend>
-    <build_depend>message_generation</build_depend>
+    <build_depend>geometry_msgs</build_depend>
     <run_depend>roscpp</run_depend>
     <run_depend>rospy</run_depend>
     <run_depend>std_msgs</run_depend>
@@ -24,7 +28,7 @@
     <run_depend>image_transport</run_depend>
     <run_depend>tf</run_depend>
     <run_depend>sensor_msgs</run_depend>
-    <run_depend>message_runtime</run_depend>
+    <run_depend>geometry_msgs</run_depend>
     <export>
 
     </export>

@@ -1,43 +1,55 @@
-#include <ros/ros.h>
-#include <ros/time.h>
-#include <tf/transform_broadcaster.h>
-#include <sensor_msgs/Image.h>
-// #include <sensor_msgs/Imu.h>
-// #include <sensor_msgs/PointCloud2.h>
-#include <cv_bridge/cv_bridge.h>
-#include <image_transport/image_transport.h>
 
-#include <opencv2/core/core.hpp>
-#include <opencv2/opencv.hpp>
-
-// ORB-SLAM3-specific libraries. Directory is defined in CMakeLists.txt: ${ORB_SLAM3_DIR}
 #include "include/ImuTypes.h"
 #include "include/System.h"
-#include "orb_slam3_ros_wrapper/frame.h"
 
-class ORB_SLAM3_interface
-{
-  ORB_SLAM3::System* mpSLAM;
+#include <image_transport/image_transport.h>
+#include <tf/transform_broadcaster.h>
+#include <cv_bridge/cv_bridge.h>
+#include <opencv2/core/core.hpp>
+#include <sensor_msgs/Image.h>
+#include <opencv2/opencv.hpp>
+#include <ros/time.h>
+#include <ros/ros.h>
 
-  ros::NodeHandle* node_handle;
+#ifndef ORB_SLAM3_INTERFACE_H
+#define ORB_SLAM3_INTERFACE_H
 
-  ros::Publisher frame_pub;
+#define ORB_SLAM3_ROS_WRAPPER_POSE_TOPIC  "/orb_slam3_ros_wrapper/pose"
+#define ORB_SLAM3_ROS_WRAPPER_DEPTH_TOPIC "/orb_slam3_ros_wrapper/depth"
+#define ORB_SLAM3_ROS_WRAPPER_RGB_TOPIC   "/orb_slam3_ros_wrapper/rgb"
 
-  std::string map_frame_id;
-  std::string pose_frame_id;
 
-  ros::Time prev_sample_time;
+class ORB_SLAM3_interface {
+   
+private:
+    ORB_SLAM3::System* mpSLAM;
+
+    ros::NodeHandle* node_handle;
+
+    ros::Publisher _publisher;
+    ros::Publisher __publisher;
+    ros::Publisher ___publisher;
+
+    std::string map_frame_id;
+    std::string pose_frame_id;
+
+    ros::Time prev_sample_time;
 
 public:
-  ORB_SLAM3_interface(ORB_SLAM3::System* pSLAM, ros::NodeHandle* node_handle);
+    ORB_SLAM3_interface(ORB_SLAM3::System* pSLAM, ros::NodeHandle* node_handle);
 
-  // void rgb_callback(const sensor_msgs::ImageConstPtr& msgRGB);
-  // void rgb_imu_callback(const sensor_msgs::ImageConstPtr& msgRGB);
-  // void stereo_callback(const sensor_msgs::ImageConstPtr& msgRGB);
-  void rgbd_callback(const sensor_msgs::ImageConstPtr& msgRGB, const sensor_msgs::ImageConstPtr& msgD);
+    // void rgb_callback(const sensor_msgs::ImageConstPtr& msgRGB);
+    // void rgb_imu_callback(const sensor_msgs::ImageConstPtr& msgRGB);
+    // void stereo_callback(const sensor_msgs::ImageConstPtr& msgRGB);
+    
+    void rgbd_callback(const sensor_msgs::ImageConstPtr& msgRGB, const sensor_msgs::ImageConstPtr& msgD);
 
-  geometry_msgs::PoseStamped SE3toPoseMsg(Sophus::SE3f tf);
+    geometry_msgs::PoseStamped SE3toPoseMsg(Sophus::SE3f tf);
 
-  void publish_frame(Sophus::SE3f Tcw, sensor_msgs::Image msgRGB, sensor_msgs::Image msgD,
-                         ORB_SLAM3::System::eSensor sensor_type);
+    void publish_frame(Sophus::SE3f Tcw, sensor_msgs::Image msgRGB, 
+        sensor_msgs::Image msgD, ORB_SLAM3::System::eSensor sensor_type);
 };
+
+#endif
+
+
