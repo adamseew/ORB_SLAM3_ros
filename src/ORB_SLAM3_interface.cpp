@@ -2,7 +2,11 @@
 #include "orb_slam3_ros_wrapper/ORB_SLAM3_interface.h"
 #include "sophus/geometry.hpp"
 
+#include <sensor_msgs/point_cloud2_iterator.h>
+#include <sensor_msgs/PointCloud2.h>
 #include <geometry_msgs/Pose.h>
+#include <Eigen/Dense>
+
 #include <vector>
 
 
@@ -21,6 +25,8 @@ ORB_SLAM3_interface::ORB_SLAM3_interface(ORB_SLAM3::System* pSLAM,
 
     ROS_INFO("Running the wrapper for ORB SLAM3 in iSDF ROS1 workspace");
 }
+
+ORB_SLAM3_interface::~ORB_SLAM3_interface(void) { }
 
 void ORB_SLAM3_interface::rgbd_callback(const sensor_msgs::ImageConstPtr& msgRGB,
     const sensor_msgs::ImageConstPtr& msgD) {
@@ -48,8 +54,9 @@ void ORB_SLAM3_interface::rgbd_callback(const sensor_msgs::ImageConstPtr& msgRGB
                                          cv_ptrRGB->header.stamp.toSec()
                                         );
 
-     publish_frame(Tcw, *msgRGB, *msgD, ORB_SLAM3::System::STEREO);
-     // publish_tracking_mappoints(mpSLAM->GetTrackedMapPoints(), cv_ptrRGB->header.stamp);
+    image_to_pointcloud(msgD);     
+    publish_frame(Tcw, *msgRGB, *msgD, ORB_SLAM3::System::STEREO);
+    // publish_tracking_mappoints(mpSLAM->GetTrackedMapPoints(), cv_ptrRGB->header.stamp);
 }
 
 geometry_msgs::PoseStamped ORB_SLAM3_interface::SE3toPoseMsg(Sophus::SE3f tf) {
@@ -72,6 +79,88 @@ geometry_msgs::PoseStamped ORB_SLAM3_interface::SE3toPoseMsg(Sophus::SE3f tf) {
     pose_msg.pose.orientation.w = q.w();
 
     return pose_msg;
+}
+
+
+void ORB_SLAM3_interface::image_to_pointcloud(const sensor_msgs::ImageConstPtr& _image) {
+
+    int           i, j, n_points;
+    float         d, depth_scale = 1e-3;
+
+    const ushort* row_ptr;
+    vector<float> points;
+
+    cv_bridge::CvImageConstPtr image =  cv_bridge::toCvShare(_image);
+    Eigen::Matrix3f K;
+    K <<  607.199951171875, 0.0,               320.0849609375, 
+          0.0,              606.1614990234375, 244.21034240722656, 
+          0.0,              0.0,               1.0;
+    Eigen::Matrix3f invK; 
+    invK = K.inverse();
+
+    for (i = 0; i < image->image.rows; i++) {
+
+        row_ptr = image->image.ptr<ushort>(i);
+
+        for (j = 0; j < image->image.cols; j++) {
+
+            ushort id = row_ptr[j];
+
+            if (id != 0) {
+                d = depth_scale*id;
+                
+		Eigen::Vector3f image_point(j*d, i*d, d);
+                Eigen::Vector3f camera_point = invK*image_point;
+
+                points.push_back(camera_point.x());
+                points.push_back(camera_point.y());
+                points.push_back(camera_point.z());
+            }
+        }
+    }
+
+    n_points = points.size();
+
+    // Create a PointCloud2
+    sensor_msgs::PointCloud2 cloud_msg;
+    sensor_msgs::PointCloud2Modifier modifier(cloud_msg);
+    modifier.setPointCloud2Fields(3, "x", 1, sensor_msgs::PointField::FLOAT32,
+                                     "y", 1, sensor_msgs::PointField::FLOAT32,
+                                     "z", 1, sensor_msgs::PointField::FLOAT32);
+    modifier.setPointCloud2FieldsByString(1, "xyz");
+    modifier.resize(n_points);
+
+    sensor_msgs::PointCloud2Iterator<float> iter_x(cloud_msg, "x");
+    sensor_msgs::PointCloud2Iterator<float> iter_y(cloud_msg, "y");
+    sensor_msgs::PointCloud2Iterator<float> iter_z(cloud_msg, "z");
+
+    cloud_msg.height = 1;
+    cloud_msg.width = n_points;
+    cloud_msg.header.frame_id = _image->header.frame_id;
+    cloud_msg.header.seq = _image->header.seq;
+    cloud_msg.header.stamp = _image->header.stamp;
+
+#ifdef DEBUG
+    log_fd.open(DEBUG_LOCALE_PCD_LOG, std::ios::out|std::ios::trunc);
+#endif
+
+    for(i = 0; i < n_points/3; ++i, ++iter_x, ++iter_y, ++iter_z) {
+        *iter_x = points[3*i+0];
+        *iter_y = points[3*i+1];
+        *iter_z = points[3*i+2];
+	
+#ifdef DEBUG
+        log_fd << points[3*i+0] << "," << points[3*i+1] << "," << points[3*i+2];
+
+	if (i != n_points/3-1)
+            log_fd << ",";
+#endif
+    }
+#ifdef DEBUG
+    log_fd.close();
+#endif
+
+    //cloud_pub.publish(cloud_msg);
 }
 
 void ORB_SLAM3_interface::publish_frame(Sophus::SE3f Tcw, 
