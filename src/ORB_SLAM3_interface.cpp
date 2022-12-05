@@ -16,6 +16,7 @@ ORB_SLAM3_interface::ORB_SLAM3_interface(ORB_SLAM3::System* pSLAM,
     _publisher = node_handle->advertise<geometry_msgs::Pose>(ORB_SLAM3_ROS_WRAPPER_POSE_TOPIC, 1);
     __publisher = node_handle->advertise<sensor_msgs::Image>(ORB_SLAM3_ROS_WRAPPER_DEPTH_TOPIC, 1);
     ___publisher = node_handle->advertise<sensor_msgs::Image>(ORB_SLAM3_ROS_WRAPPER_RGB_TOPIC, 1);
+    ____publisher = node_handle->advertise<sensor_msgs::PointCloud2>(ORB_SLAM3_ROS_WRAPPER_PCD_TOPIC, 1);
 
     std::string node_name = ros::this_node::getName();
     node_handle->param<std::string>(node_name + "/map_frame_id", map_frame_id, "map");
@@ -84,6 +85,7 @@ geometry_msgs::PoseStamped ORB_SLAM3_interface::SE3toPoseMsg(Sophus::SE3f tf) {
 
 void ORB_SLAM3_interface::image_to_pointcloud(const sensor_msgs::ImageConstPtr& _image) {
 
+    static int    _count;
     int           i, j, n_points;
     float         d, depth_scale = 1e-3;
 
@@ -97,6 +99,7 @@ void ORB_SLAM3_interface::image_to_pointcloud(const sensor_msgs::ImageConstPtr& 
           0.0,              0.0,               1.0;
     Eigen::Matrix3f invK; 
     invK = K.inverse();
+    points.clear();
 
     for (i = 0; i < image->image.rows; i++) {
 
@@ -121,6 +124,8 @@ void ORB_SLAM3_interface::image_to_pointcloud(const sensor_msgs::ImageConstPtr& 
 
     n_points = points.size();
 
+    ROS_INFO_STREAM("debug 1 " << n_points/3);
+
     // Create a PointCloud2
     sensor_msgs::PointCloud2 cloud_msg;
     sensor_msgs::PointCloud2Modifier modifier(cloud_msg);
@@ -141,7 +146,8 @@ void ORB_SLAM3_interface::image_to_pointcloud(const sensor_msgs::ImageConstPtr& 
     cloud_msg.header.stamp = _image->header.stamp;
 
 #ifdef DEBUG
-    log_fd.open(DEBUG_LOCALE_PCD_LOG, std::ios::out|std::ios::trunc);
+    if (_count == 0)
+    	log_fd.open(DEBUG_LOCALE_PCD_LOG, std::ios::out|std::ios::trunc);
 #endif
 
     for(i = 0; i < n_points/3; ++i, ++iter_x, ++iter_y, ++iter_z) {
@@ -150,17 +156,23 @@ void ORB_SLAM3_interface::image_to_pointcloud(const sensor_msgs::ImageConstPtr& 
         *iter_z = points[3*i+2];
 	
 #ifdef DEBUG
-        log_fd << points[3*i+0] << "," << points[3*i+1] << "," << points[3*i+2];
+        if (_count ==  0) {
+            log_fd << points[3*i+0] << "," << points[3*i+1] << "," << points[3*i+2];
 
-	if (i != n_points/3-1)
-            log_fd << ",";
+	    if (i != n_points/3-1)
+                log_fd << ",";
+        }
 #endif
     }
+    
+    ROS_INFO_STREAM("debug 2 " << i);
+
 #ifdef DEBUG
-    log_fd.close();
+    if (_count++ == 0)
+        log_fd.close();
 #endif
 
-    //cloud_pub.publish(cloud_msg);
+    ____publisher.publish(cloud_msg);
 }
 
 void ORB_SLAM3_interface::publish_frame(Sophus::SE3f Tcw, 

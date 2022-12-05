@@ -20,6 +20,7 @@
 #define ORB_SLAM3_ROS_WRAPPER_POSE_TOPIC  "/orb_slam3_ros_wrapper/pose"
 #define ORB_SLAM3_ROS_WRAPPER_DEPTH_TOPIC "/orb_slam3_ros_wrapper/depth"
 #define ORB_SLAM3_ROS_WRAPPER_RGB_TOPIC   "/orb_slam3_ros_wrapper/rgb"
+#define ORB_SLAM3_ROS_WRAPPER_PCD_TOPIC   "/orb_slam3_ros_wrapper/pcd"
 #define DEBUG                             1
 #define DEBUG_LOCALE_PCD_LOG              "/home/user/locale_pcd.dat"
 
@@ -33,6 +34,7 @@ private:
     ros::Publisher _publisher;
     ros::Publisher __publisher;
     ros::Publisher ___publisher;
+    ros::Publisher ____publisher;
 
     std::string map_frame_id;
     std::string pose_frame_id;
