@@ -151,8 +151,8 @@ void ORB_SLAM3_interface::image_to_pointcloud(const sensor_msgs::ImageConstPtr& 
 #endif
 
     for(i = 0; i < n_points/3; ++i, ++iter_x, ++iter_y, ++iter_z) {
-        *iter_x = points[3*i+0]-.3093; // tranlsation
-        *iter_y = points[3*i+1];
+        *iter_x = points[3*i+0]-TRANSLATION_X; // tranlsations
+        *iter_y = points[3*i+1]-TRANSLATION_Y;
         *iter_z = points[3*i+2];
 	
 #ifdef DEBUG
