@@ -124,8 +124,6 @@ void ORB_SLAM3_interface::image_to_pointcloud(const sensor_msgs::ImageConstPtr& 
 
     n_points = points.size();
 
-    ROS_INFO_STREAM("debug 1 " << n_points/3);
-
     // Create a PointCloud2
     sensor_msgs::PointCloud2 cloud_msg;
     sensor_msgs::PointCloud2Modifier modifier(cloud_msg);
@@ -165,8 +163,6 @@ void ORB_SLAM3_interface::image_to_pointcloud(const sensor_msgs::ImageConstPtr& 
 #endif
     }
     
-    ROS_INFO_STREAM("debug 2 " << i);
-
 #ifdef DEBUG
     if (_count++ == 0)
         log_fd.close();

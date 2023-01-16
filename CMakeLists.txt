@@ -51,6 +51,7 @@ include_directories(
 # Build ROS nodes
 set(LIBS
    ${ORB_SLAM3_DIR}/lib/libORB_SLAM3.so
+   ${ORB_SLAM3_DIR}/Thirdparty/DBoW2/lib/libDBoW2.so
    ${EIGEN3_LIBS}
    ${catkin_LIBRARIES}
    ${Pangolin_LIBRARIES}
