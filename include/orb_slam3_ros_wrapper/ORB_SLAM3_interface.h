@@ -21,7 +21,6 @@
 #define ORB_SLAM3_ROS_WRAPPER_DEPTH_TOPIC "/orb_slam3_ros_wrapper/depth"
 #define ORB_SLAM3_ROS_WRAPPER_RGB_TOPIC   "/orb_slam3_ros_wrapper/rgb"
 #define ORB_SLAM3_ROS_WRAPPER_PCD_TOPIC   "/orb_slam3_ros_wrapper/pcd"
-#define DEBUG                             1
 #define DEBUG_LOCALE_PCD_LOG              "/home/user/locale_pcd.dat"
 #define TRANSLATION_X                     .3093
 #define TRANSLATION_Y                     .24
